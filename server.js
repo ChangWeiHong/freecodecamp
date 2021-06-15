@@ -8,7 +8,6 @@ var app = express();
 // enable CORS (https://en.wikipedia.org/wiki/Cross-origin_resource_sharing)
 // so that your API is remotely testable by FCC 
 var cors = require('cors');
-const { response } = require('express');
 app.use(cors({optionsSuccessStatus: 200}));  // some legacy browsers choke on 204
 
 // http://expressjs.com/en/starter/static-files.html
@@ -36,6 +35,11 @@ app.get("/api/:date?", function(req, res){
   var num = /[0-9]/g;
   var isNum = num.test(req.params.date);
   var date_string = req.params.date;
+  if(date_string == " "){
+    var now = new Date();
+    return res.json({"unix": now.getTime() ,  "utc": now.toUTCString() });
+  }
+
   if(isNum){
     if(date_string.includes("-") || date_string.includes(" ")){
       responseObj['unix'] = new Date(date_string).getTime() ;
@@ -48,8 +52,7 @@ app.get("/api/:date?", function(req, res){
       }
     }
   }
-  
-  if(date_string.toString() === "Invalid Date" || !isNum) {
+  if(date_string === "Invalid Date" || !isNum) {
     res.json({ error : "Invalid Date" });
     res.end();
   } else{
@@ -58,7 +61,8 @@ app.get("/api/:date?", function(req, res){
   }
 })
 
+
 // listen for requests :)
-var listener = app.listen(process.env.PORT || 3000, function () {
+var listener = app.listen(process.env.PORT, function () {
   console.log('Your app is listening on port ' + listener.address().port);
 });
